@@ -124,7 +124,8 @@ class ApiTest extends TestCase {
 			\OC::$server->getURLGenerator(),
 			$currentUser,
 			$l,
-			\OC::$server->getConfig()
+			\OC::$server->getConfig(),
+			\OC::$server->getEventDispatcher()
 		);
 	}
 
