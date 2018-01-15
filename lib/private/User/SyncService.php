@@ -130,67 +130,149 @@ class SyncService {
 		} while(count($users) >= $limit);
 	}
 
-	/**
-	 * @param Account $a
-	 * @param UserInterface $backend of the user
-	 * @return Account
-	 */
-	public function syncAccount(Account $a, UserInterface $backend) {
+	private function syncState(Account $a) {
 		$uid = $a->getUserId();
 		list($hasKey, $value) = $this->readUserConfig($uid, 'core', 'enabled');
 		if ($hasKey) {
-			$a->setState(($value === 'true') ? Account::STATE_ENABLED : Account::STATE_DISABLED);
+			if ($value === 'true') {
+				$a->setState(Account::STATE_ENABLED);
+			} else {
+				$a->setState(Account::STATE_DISABLED);
+			}
+			if (array_key_exists('state', $a->getUpdatedFields())) {
+				if ($value === 'true') {
+					$this->logger->debug(
+						"Enabling <$uid>", ['app' => self::class]
+					);
+				} else {
+					$this->logger->debug(
+						"Disabling <$uid>", ['app' => self::class]
+					);
+				}
+			}
 		}
+	}
+
+	private function syncLastLogin(Account $a) {
+		$uid = $a->getUserId();
 		list($hasKey, $value) = $this->readUserConfig($uid, 'login', 'lastLogin');
 		if ($hasKey) {
 			$a->setLastLogin($value);
-		}
-		if ($backend instanceof IProvidesEMailBackend) {
-			$a->setEmail($backend->getEMailAddress($uid));
-		} else {
-			list($hasKey, $value) = $this->readUserConfig($uid, 'settings', 'email');
-			if ($hasKey) {
-				$a->setEmail($value);
+			if (array_key_exists('lastLogin', $a->getUpdatedFields())) {
+				$this->logger->debug(
+					"Setting lastLogin for <$uid> to <$value>", ['app' => self::class]
+				);
 			}
 		}
+	}
+
+	private function syncEmail(Account $a, UserInterface $backend) {
+		$uid = $a->getUserId();
+		$email = null;
+		if ($backend instanceof IProvidesEMailBackend) {
+			$email = $backend->getEMailAddress($uid);
+			$a->setEmail($email);
+		} else {
+			list($hasKey, $email) = $this->readUserConfig($uid, 'settings', 'email');
+			if ($hasKey) {
+				$a->setEmail($email);
+			}
+		}
+		if (array_key_exists('email', $a->getUpdatedFields())) {
+			$this->logger->debug(
+				"Setting email for <$uid> to <$email>", ['app' => self::class]
+			);
+		}
+	}
+
+	private function syncQuota(Account $a, UserInterface $backend) {
+		$uid = $a->getUserId();
+		$quota = null;
 		if ($backend instanceof IProvidesQuotaBackend) {
 			$quota = $backend->getQuota($uid);
 			if ($quota !== null) {
 				$a->setQuota($quota);
 			}
 		} else {
-			list($hasKey, $value) = $this->readUserConfig($uid, 'files', 'quota');
+			list($hasKey, $quota) = $this->readUserConfig($uid, 'files', 'quota');
 			if ($hasKey) {
-				$a->setQuota($value);
+				$a->setQuota($quota);
 			}
 		}
+		if (array_key_exists('quota', $a->getUpdatedFields())) {
+			$this->logger->debug(
+				"Setting quota for <$uid> to <$quota>", ['app' => self::class]
+			);
+		}
+	}
 
+	private function syncHome(Account $a, UserInterface $backend) {
 		// Home is handled differently, it should only be set on account creation, when there is no home already set
 		// Otherwise it could change on a sync and result in a new user folder being created
 		if($a->getHome() === null) {
+			$uid = $a->getUserId();
 			$home = false;
 			if ($backend->implementsActions(\OC_User_Backend::GET_HOME)) {
 				$home = $backend->getHome($uid);
 			}
 			if (!is_string($home) || substr($home, 0, 1) !== '/') {
 				$home = $this->config->getSystemValue('datadirectory', \OC::$SERVERROOT . '/data') . "/$uid";
-				$this->logger->warning(
-					"User backend ".get_class($backend)." provided no home for <$uid>, using <$home>.",
+				$this->logger->debug(
+					"User backend ".get_class($backend)." provided no home for <$uid>",
 					['app' => self::class]
 				);
 			}
 			// This will set the home if not provided by the backend
 			$a->setHome($home);
+			if (array_key_exists('home', $a->getUpdatedFields())) {
+				$this->logger->debug(
+					"Setting home for <$uid> to <$home>", ['app' => self::class]
+				);
+			}
 		}
+	}
 
+	private function syncDisplayName(Account $a, UserInterface $backend) {
+		$uid = $a->getUserId();
 		if ($backend->implementsActions(\OC_User_Backend::GET_DISPLAYNAME)) {
 			//TODO IConsumesDisplayNameBackend for setDisplayName?
-			$a->setDisplayName($backend->getDisplayName($uid));
+			$displayName = $backend->getDisplayName($uid);
+			$a->setDisplayName($displayName);
+			if (array_key_exists('displayName', $a->getUpdatedFields())) {
+				$this->logger->debug(
+					"Setting displayName for <$uid> to <$displayName>", ['app' => self::class]
+				);
+			}
 		}
-		// Check if backend supplies an additional search string
+	}
+
+	private function syncSearchTerms(Account $a, UserInterface $backend) {
+		$uid = $a->getUserId();
 		if ($backend instanceof IProvidesExtendedSearchBackend) {
-			$a->setSearchTerms($backend->getSearchTerms($uid));
+			$searchTerms = $backend->getSearchTerms($uid);
+			$a->setSearchTerms($searchTerms);
+			if ($a->haveTermsChanged()) {
+				$logTerms = join('|', $searchTerms);
+				$this->logger->debug(
+					"Setting searchTerms for <$uid> to <$logTerms>", ['app' => self::class]
+				);
+			}
 		}
+	}
+
+	/**
+	 * @param Account $a
+	 * @param UserInterface $backend of the user
+	 * @return Account
+	 */
+	public function syncAccount(Account $a, UserInterface $backend) {
+		$this->syncState($a);
+		$this->syncLastLogin($a);
+		$this->syncEmail($a, $backend);
+		$this->syncQuota($a, $backend);
+		$this->syncHome($a, $backend);
+		$this->syncDisplayName($a, $backend);
+		$this->syncSearchTerms($a, $backend);
 		return $a;
 	}
 
