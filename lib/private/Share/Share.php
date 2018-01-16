@@ -2666,6 +2666,7 @@ class Share extends Constants {
 	 * @return array
 	 */
 	private static function tryHttpPostToShareEndpoint($remoteDomain, $urlSuffix, array $fields) {
+		$allowHttpFallback = \OC::$server->getConfig()->getSystemValue('sharing.federation.allowHttpFallback',  false) === true;
 		$protocol = 'https://';
 		$result = [
 			'success' => false,
@@ -2676,14 +2677,28 @@ class Share extends Constants {
 			\OC::$server->getMemCacheFactory(),
 			\OC::$server->getHTTPClientService()
 		);
-		while ($result['success'] === false && $try < 2) {
-			$endpoint = $discoveryManager->getShareEndpoint($protocol . $remoteDomain);
-			$result = \OC::$server->getHTTPHelper()->post($protocol . $remoteDomain . $endpoint . $urlSuffix . '?format=' . self::RESPONSE_FORMAT, $fields);
-			$try++;
+
+		$endpoint = $discoveryManager->getShareEndpoint($protocol . $remoteDomain);
+		// Try HTTPS
+		$result = \OC::$server->getHTTPHelper()->post(
+			$protocol . $remoteDomain . $endpoint . $urlSuffix . '?format=' . self::RESPONSE_FORMAT,
+			$fields);
+
+		if ($result['success'] === true) {
+			// Return if it worked
+			return $result;
+		} elseif ($result['success'] === false && $allowHttpFallback) {
+			// If it failed and we can fallback, try that
 			$protocol = 'http://';
+			$result = \OC::$server->getHTTPHelper()->post(
+			$protocol . $remoteDomain . $endpoint . $urlSuffix . '?format=' . self::RESPONSE_FORMAT,
+			$fields);
+			return $result;
+		} else {
+			// Else we just return the failure
+			return $result;
 		}
 
-		return $result;
 	}
 
 	/**

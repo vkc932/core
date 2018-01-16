@@ -1116,6 +1116,11 @@ $CONFIG = array(
  */
 'sharing.managerFactory' => '\OC\Share20\ProviderFactory',
 
+/**
+ * When talking with federated sharing server, allow falling back to HTTP
+ * instead of hard forcing HTTPS
+ */
+'sharing.federation.allowHttpFallback' => false,
 
 
 /**
@@ -1415,5 +1420,4 @@ $CONFIG = array(
  *
  */
 'files_external_allow_create_new_local' => false,
-
 );
