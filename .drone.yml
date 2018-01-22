@@ -237,8 +237,8 @@ matrix:
     #   DB_TYPE: oracle
     #   TEST_SUITE: phpunit
 
-    # PHP 7.2
-    - PHP_VERSION: 7.2
+    # PHP 7.1
+    - PHP_VERSION: 7.1
       DB_TYPE: sqlite
       TEST_SUITE: phpunit
     #- PHP_VERSION: 7.2
