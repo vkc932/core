@@ -107,6 +107,19 @@ pipeline:
       matrix:
         TEST_SUITE: phpunit
 
+  phpunit:
+    image: patrickjahns/php:7.2
+    pull: true
+    group: test
+    environment:
+      - PHP_VERSION=${PHP_VERSION}
+      - DB_TYPE=${DB_TYPE}
+    commands:
+      - ./tests/drone/test-phpunit.sh
+    when:
+      matrix:
+        TEST_SUITE: phpunit_adjusted
+        
   files_external:
     image: owncloudci/php:${PHP_VERSION}
     pull: true
@@ -237,10 +250,14 @@ matrix:
     #   DB_TYPE: oracle
     #   TEST_SUITE: phpunit
 
-    # PHP 7.1
-    - PHP_VERSION: 7.1
+    # PHP 7.2
+    - PHP_VERSION: 7.2
       DB_TYPE: sqlite
       TEST_SUITE: phpunit
+      
+    - PHP_VERSION: 7.2
+      DB_TYPE: sqlite
+      TEST_SUITE: phpunit_adjusted
     #- PHP_VERSION: 7.2
     #  DB_TYPE: mariadb
     #  TEST_SUITE: phpunit
