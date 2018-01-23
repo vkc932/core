@@ -147,8 +147,11 @@
 }
 
 .link-entry--title {
-	flex-grow  : 1;
-	font-weight: bold;
+	flex-grow    : 1;
+	font-weight  : bold;
+	overflow-x   : hidden;
+	text-overflow: ellipsis;
+	white-space  : nowrap;
 }
 
 .link-entry--icon-button {
