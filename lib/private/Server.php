@@ -304,6 +304,9 @@ class Server extends ServerContainer implements IServerContainer, IServiceLoader
 			$userSession->listen('\OC\User', 'postCreateUser', function ($user, $password) {
 				/** @var $user \OC\User\User */
 				\OC_Hook::emit('OC_User', 'post_createUser', ['uid' => $user->getUID(), 'password' => $password]);
+				$this->emittingCall(function () {},
+					['after' => ['uid' => $user->getUID(), 'password' => $password]],
+					'user', 'createuser');
 			});
 			$userSession->listen('\OC\User', 'preDelete', function ($user) {
 				/** @var $user \OC\User\User */
@@ -319,10 +322,16 @@ class Server extends ServerContainer implements IServerContainer, IServiceLoader
 			$userSession->listen('\OC\User', 'preSetPassword', function ($user, $password, $recoveryPassword) {
 				/** @var $user \OC\User\User */
 				\OC_Hook::emit('OC_User', 'pre_setPassword', ['run' => true, 'uid' => $user->getUID(), 'password' => $password, 'recoveryPassword' => $recoveryPassword]);
+				$this->emittingCall(function () {},
+					['before' => ['run' => true, 'uid' => $user->getUID(), 'password' => $password, 'recoveryPassword' => $recoveryPassword]],
+					'user', 'setpassword');
 			});
 			$userSession->listen('\OC\User', 'postSetPassword', function ($user, $password, $recoveryPassword) {
 				/** @var $user \OC\User\User */
 				\OC_Hook::emit('OC_User', 'post_setPassword', ['run' => true, 'uid' => $user->getUID(), 'password' => $password, 'recoveryPassword' => $recoveryPassword]);
+				$this->emittingCall(function () {},
+					['after' => ['run' => true, 'uid' => $user->getUID(), 'password' => $password, 'recoveryPassword' => $recoveryPassword]],
+					'user', 'setpassphrase');
 			});
 			$userSession->listen('\OC\User', 'preLogin', function ($uid, $password) {
 				\OC_Hook::emit('OC_User', 'pre_login', ['run' => true, 'uid' => $uid, 'password' => $password]);
