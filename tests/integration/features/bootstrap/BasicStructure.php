@@ -86,7 +86,15 @@ trait BasicStructure {
 	}
 
 	/**
-	 * @Given /^as (?:an|user) "([^"]*)"$/
+	 * @Given /^as user "([^"]*)"$/
+	 * @param string $user
+	 */
+	public function asUser($user) {
+		$this->currentUser = $user;
+	}
+
+	/**
+	 * @Given /^as an "([^"]*)"$/
 	 * @param string $user
 	 */
 	public function asAn($user) {
