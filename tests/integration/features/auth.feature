@@ -1,7 +1,7 @@
 Feature: auth
 
 	Background:
-		Given user "user0" exists
+		Given user "user0" has been created
 		And a new client token is used
 
 
