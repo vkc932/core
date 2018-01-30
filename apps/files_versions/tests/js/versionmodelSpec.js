@@ -26,7 +26,7 @@ describe('OCA.Versions.VersionModel', function() {
 			name: 'some file.txt',
 			size: 150,
 		});
-		currentUserStub = sinon.stub(OC, 'currentUser').returns({uid: 'user0'});
+		currentUserStub = sinon.stub(OC, 'getCurrentUser').returns({uid: 'user0'});
 
 		requestDeferred = new $.Deferred();
 		requestStub = sinon.stub(dav.Client.prototype, 'request').returns(requestDeferred.promise());
