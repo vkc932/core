@@ -207,10 +207,18 @@ class SyncService {
 	}
 
 	private function syncHome(Account $a, UserInterface $backend) {
+		$uid = $a->getUserId();
+		// Log when the backend is returning a different home to the current value
+		if($backend->implementsActions(\OC_User_Backend::GET_HOME) && $a->getHome() !== $backend->getHome($uid)) {
+			$existing = $a->getHome();
+			$backendHome = $backend->getHome($uid);
+			$class = get_class($backend);
+			$this->logger->error("User backend $class is returning home: $backendHome for user: $uid which differs from existing value: $existing");
+		}
 		// Home is handled differently, it should only be set on account creation, when there is no home already set
 		// Otherwise it could change on a sync and result in a new user folder being created
 		if($a->getHome() === null) {
-			$uid = $a->getUserId();
+
 			$home = false;
 			if ($backend->implementsActions(\OC_User_Backend::GET_HOME)) {
 				$home = $backend->getHome($uid);

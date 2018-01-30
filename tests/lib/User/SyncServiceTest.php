@@ -56,4 +56,25 @@ class SyncServiceTest extends TestCase {
 
 		$this->assertEquals('foo@bar.net', $a->getEmail());
 	}
+
+	public function testSyncHomeLogsWhenBackendDiffersFromExisting() {
+		$mapper = $this->createMock(AccountMapper::class);
+		$backend = $this->createMock(UserInterface::class);
+		$config = $this->createMock(IConfig::class);
+		$logger = $this->createMock(ILogger::class);
+		$a = $this->createMock(Account::class);
+
+		// Accoutn returns existing home
+		$a->expects($this->once())->method('getHome')->willReturn('existing');
+
+		// Backend returns a new home
+		$backend->expects($this->exactly(2))->method('getHome')->willReturn('newwrongvalue');
+
+		// Should produce an error in the log if backend home different from stored account home
+		$logger->expects($this->once())->method('error');
+
+		$s = new SyncService($config, $logger, $mapper);
+
+		$this->invokePrivate($s, 'syncHome', [$a, $backend]);
+	}
 }
