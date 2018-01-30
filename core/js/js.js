@@ -321,10 +321,14 @@ var OC = {
 	 * @since 9.0.0
 	 */
 	getCurrentUser: function () {
-		if (!_.isUndefined(oc_user)) {
+		if (!_.isUndefined(window.oc_user)) {
 			return oc_user;
 		}
-		return null;
+		return {
+			uid: null,
+			displayName: null,
+			email: null
+		};
 	},
 
 	/**

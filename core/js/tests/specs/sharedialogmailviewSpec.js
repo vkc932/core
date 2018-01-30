@@ -26,6 +26,7 @@ describe('OC.Share.ShareDialogMailView', function() {
 	var model;
 	var itemModel;
 	var autocompleteStub;
+	var currentUserStub;
 
 	beforeEach(function() {
 		var configModel = new OC.Share.ShareConfigModel();
@@ -45,6 +46,12 @@ describe('OC.Share.ShareDialogMailView', function() {
 		}, {
 			configModel: configModel,
 			fileInfoModel: fileInfoModel
+		});
+
+		currentUserStub = sinon.stub(OC, 'getCurrentUser').returns({
+			uid: 'someuser',
+			displayName: 'Some User',
+			email: 'someuser@example.org'
 		});
 
 		autocompleteStub = sinon.stub($.fn, 'autocomplete').callsFake(function() {
@@ -74,10 +81,11 @@ describe('OC.Share.ShareDialogMailView', function() {
 	afterEach(function() { 
 		view.remove(); 
 		autocompleteStub.restore();
+		currentUserStub.restore();
 	});
 
 	it('rendering', function() {
-		expect(view.$('.emailField').length).toEqual(1);
+		expect(view.$('.emailPrivateLinkForm--emailField').length).toEqual(1);
 	});
 
 	describe('autocomplete', function() {
@@ -119,7 +127,7 @@ describe('OC.Share.ShareDialogMailView', function() {
 	describe('sending emails', function() {
 		it('sends entered emails when calling sendEmails()', function() {
 			var callback = sinon.stub();
-			view.$('.emailField').val('email@example.com');
+			view.$('.emailPrivateLinkForm--emailField').val('email@example.com');
 			view.sendEmails().then(callback);
 
 			expect(callback.notCalled).toEqual(true);
@@ -161,7 +169,7 @@ describe('OC.Share.ShareDialogMailView', function() {
 		it('rejects promise in case of failure', function() {
 			var callback = sinon.stub();
 			var rejectCallback = sinon.stub();
-			view.$('.emailField').val('email@example.com');
+			view.$('.emailPrivateLinkForm--emailField').val('email@example.com');
 			view.sendEmails().then(callback).fail(rejectCallback);
 
 			expect(callback.notCalled).toEqual(true);
