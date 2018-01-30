@@ -597,8 +597,7 @@ class Session implements IUserSession, Emitter {
 			return true; // nothing to do
 		}
 		$this->session->regenerateId();
-		//$run = true;
-		//OC_Hook::emit("OC_User", "pre_login", ["run" => &$run, "uid" => $uid]);
+
 		$this->manager->emit('\OC\User', 'preLogin', [$uid, '']);
 
 		// Die here if not valid
@@ -629,7 +628,6 @@ class Session implements IUserSession, Emitter {
 			// completed before we can safely create the users folder.
 			// For example encryption needs to initialize the users keys first
 			// before we can create the user folder with the skeleton files
-			//OC_Hook::emit("OC_User", "post_login", ["uid" => $uid, 'password' => '']);
 
 			$firstTimeLogin = $user->updateLastLoginTimestamp();
 			$this->manager->emit('\OC\User', 'postLogin', [$user, '']);

@@ -23,8 +23,10 @@ namespace OC\User;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\ILogger;
+use OCP\User\IProvidesDisplayNameBackend;
 use OCP\User\IProvidesEMailBackend;
 use OCP\User\IProvidesExtendedSearchBackend;
+use OCP\User\IProvidesHomeBackend;
 use OCP\User\IProvidesQuotaBackend;
 use OCP\UserInterface;
 
@@ -207,9 +209,11 @@ class SyncService {
 	}
 
 	private function syncHome(Account $a, UserInterface $backend) {
+		// Fallback for backends that dont yet use the new interfaces
+		$proividesHome = $backend instanceof IProvidesHomeBackend || $backend->implementsActions(\OC_User_Backend::GET_HOME);
 		$uid = $a->getUserId();
-		// Log when the backend is returning a different home to the current value
-		if($backend->implementsActions(\OC_User_Backend::GET_HOME) && $a->getHome() !== $backend->getHome($uid)) {
+		// Log when the backend returns a string that is a different home to the current value
+		if($proividesHome && is_string($backend->getHome($uid)) && $a->getHome() !== $backend->getHome($uid)) {
 			$existing = $a->getHome();
 			$backendHome = $backend->getHome($uid);
 			$class = get_class($backend);
@@ -220,7 +224,7 @@ class SyncService {
 		if($a->getHome() === null) {
 
 			$home = false;
-			if ($backend->implementsActions(\OC_User_Backend::GET_HOME)) {
+			if ($proividesHome) {
 				$home = $backend->getHome($uid);
 			}
 			if (!is_string($home) || substr($home, 0, 1) !== '/') {
@@ -242,8 +246,7 @@ class SyncService {
 
 	private function syncDisplayName(Account $a, UserInterface $backend) {
 		$uid = $a->getUserId();
-		if ($backend->implementsActions(\OC_User_Backend::GET_DISPLAYNAME)) {
-			//TODO IConsumesDisplayNameBackend for setDisplayName?
+		if ($backend instanceof IProvidesDisplayNameBackend) {
 			$displayName = $backend->getDisplayName($uid);
 			$a->setDisplayName($displayName);
 			if (array_key_exists('displayName', $a->getUpdatedFields())) {
