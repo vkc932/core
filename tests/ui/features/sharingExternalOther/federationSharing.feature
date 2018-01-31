@@ -12,6 +12,7 @@ So that other users have access to these files
 		And I am on the login page
 		And I login with username "user2" and password "1234"
 
+	@TestAlsoOnExternalUserBackend
 	Scenario: test the single steps of federation sharing
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And the folder "simple-empty-folder" is shared with the remote user "user1@%remote_server%"
@@ -26,7 +27,7 @@ So that other users have access to these files
 		Then the file "lorem.txt" should be listed
 		And the content of "lorem.txt" should be the same as the original "simple-folder/lorem.txt"
 
-	@skipOnMICROSOFTEDGE
+	@skipOnMICROSOFTEDGE @TestAlsoOnExternalUserBackend
 	Scenario: share a folder with an remote user and prohibit deleting
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And the sharing permissions of "user1@%remote_server% (federated)" for "simple-folder" are set to
@@ -36,6 +37,7 @@ So that other users have access to these files
 		And I open the folder "simple-folder (2)"
 		Then it should not be possible to delete the file "lorem.txt"
 
+	@TestAlsoOnExternalUserBackend
 	Scenario: overwrite a file in a received share
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And I relogin with username "user1" and password "1234" to "http://%remote_server%"
@@ -47,6 +49,7 @@ So that other users have access to these files
 		Then the file "lorem.txt" should be listed
 		And the content of "lorem.txt" should be the same as the local "lorem.txt"
 
+	@TestAlsoOnExternalUserBackend
 	Scenario: upload a new file in a received share
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And I relogin with username "user1" and password "1234" to "http://%remote_server%"
@@ -58,6 +61,7 @@ So that other users have access to these files
 		And the file "new-lorem.txt" should be listed
 		And the content of "new-lorem.txt" should be the same as the local "new-lorem.txt"
 
+	@TestAlsoOnExternalUserBackend
 	Scenario: rename a file in a received share
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And I relogin with username "user1" and password "1234" to "http://%remote_server%"
@@ -70,6 +74,7 @@ So that other users have access to these files
 		And the content of "renamed file.txt" should be the same as the original "simple-folder/lorem-big.txt"
 		But the file "lorem-big.txt" should not be listed
 
+	@TestAlsoOnExternalUserBackend
 	Scenario: delete a file in a received share
 		When the folder "simple-folder" is shared with the remote user "user1@%remote_server%"
 		And I relogin with username "user1" and password "1234" to "http://%remote_server%"
