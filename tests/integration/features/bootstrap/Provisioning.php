@@ -137,6 +137,9 @@ trait Provisioning {
 		$this->adminDeletesUserUsingTheAPI($user);
 	}
 
+	/**
+	 * @param string $user
+	 */
 	public function rememberTheUser($user) {
 		if ($this->currentServer === 'LOCAL') {
 			$this->createdUsers[$user] = $user;
@@ -145,6 +148,9 @@ trait Provisioning {
 		}
 	}
 
+	/**
+	 * @param string $user
+	 */
 	public function createTheUserUsingTheAPI($user) {
 		$fullUrl = $this->baseUrl . "v{$this->apiVersion}.php/cloud/users";
 		$client = new Client();
@@ -169,6 +175,9 @@ trait Provisioning {
 		$client->send($client->createRequest('GET', $url, $options2));
 	}
 
+	/**
+	 * @param string $user
+	 */
 	public function createUser($user) {
 		$previous_user = $this->currentUser;
 		$this->currentUser = "admin";
@@ -177,6 +186,9 @@ trait Provisioning {
 		$this->currentUser = $previous_user;
 	}
 
+	/**
+	 * @param string $user
+	 */
 	public function deleteUser($user) {
 		$previous_user = $this->currentUser;
 		$this->currentUser = "admin";
@@ -185,6 +197,9 @@ trait Provisioning {
 		$this->currentUser = $previous_user;
 	}
 
+	/**
+	 * @param string $group
+	 */
 	public function createGroup($group) {
 		$previous_user = $this->currentUser;
 		$this->currentUser = "admin";
@@ -193,6 +208,9 @@ trait Provisioning {
 		$this->currentUser = $previous_user;
 	}
 
+	/**
+	 * @param string $group
+	 */
 	public function deleteGroup($group) {
 		$previous_user = $this->currentUser;
 		$this->currentUser = "admin";
@@ -201,6 +219,10 @@ trait Provisioning {
 		$this->currentUser = $previous_user;
 	}
 
+	/**
+	 * @param string $user
+	 * @return bool
+	 */
 	public function userExists($user) {
 		$fullUrl = $this->baseUrl . "v2.php/cloud/users/$user";
 		$client = new Client();
@@ -459,7 +481,7 @@ trait Provisioning {
 	}
 
 	/**
-	 * @param $group
+	 * @param string $group
 	 * @return bool
 	 */
 	public function groupExists($group) {

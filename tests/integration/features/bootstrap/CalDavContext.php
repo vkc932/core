@@ -74,7 +74,7 @@ class CalDavContext implements \Behat\Behat\Context\Context {
 	 * @param string $user
 	 * @param string $calendar
 	 */
-	public function userRequestsCalendarUsingTheAPI($user, $calendar)  {
+	public function userRequestsCalendarUsingTheAPI($user, $calendar) {
 		$davUrl = $this->baseUrl . '/remote.php/dav/calendars/'.$calendar;
 
 		$password = ($user === 'admin') ? 'admin' : '123456';

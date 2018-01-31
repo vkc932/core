@@ -17,11 +17,19 @@ trait Auth {
 
 	/**
 	 * @When requesting :url with :method
+	 * @param string $url
+	 * @param string $method
 	 */
 	public function requestingWith($url, $method) {
 		$this->sendRequest($url, $method);
 	}
 
+	/**
+	 * @param string $url
+	 * @param string $method
+	 * @param string|null $authHeader
+	 * @param bool $useCookies
+	 */
 	private function sendRequest($url, $method, $authHeader = null, $useCookies = false) {
 		$fullUrl = substr($this->baseUrl, 0, -5) . $url;
 		try {
@@ -59,6 +67,8 @@ trait Auth {
 
 	/**
 	 * @When requesting :url with :method using basic auth
+	 * @param string $url
+	 * @param string $method
 	 */
 	public function requestingWithBasicAuth($url, $method) {
 		$this->sendRequest($url, $method, 'basic ' . base64_encode('user0:123456'));
@@ -66,6 +76,8 @@ trait Auth {
 
 	/**
 	 * @When requesting :url with :method using basic token auth
+	 * @param string $url
+	 * @param string $method
 	 */
 	public function requestingWithBasicTokenAuth($url, $method) {
 		$this->sendRequest($url, $method, 'basic ' . base64_encode('user0:' . $this->clientToken));
@@ -73,6 +85,8 @@ trait Auth {
 
 	/**
 	 * @When requesting :url with :method using a client token
+	 * @param string $url
+	 * @param string $method
 	 */
 	public function requestingWithUsingAClientToken($url, $method) {
 		$this->sendRequest($url, $method, 'token ' . $this->clientToken);
@@ -80,6 +94,8 @@ trait Auth {
 
 	/**
 	 * @When requesting :url with :method using browser session
+	 * @param string $url
+	 * @param string $method
 	 */
 	public function requestingWithBrowserSession($url, $method) {
 		$this->sendRequest($url, $method, null, true);

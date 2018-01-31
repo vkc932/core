@@ -234,6 +234,11 @@ trait BasicStructure {
 		$this->sendingToWithDirectUrl($verb, $url, null);
 	}
 
+	/**
+	 * @param string $verb
+	 * @param string $url
+	 * @param \Behat\Gherkin\Node\TableNode $body
+	 */
 	public function sendingToWithDirectUrl($verb, $url, $body) {
 		$fullUrl = substr($this->baseUrl, 0, -5) . $url;
 		$client = new Client();
@@ -264,6 +269,11 @@ trait BasicStructure {
 		}
 	}
 
+	/**
+	 * @param string $possibleUrl
+	 * @param string $finalPart
+	 * @return bool
+	 */
 	public function isExpectedUrl($possibleUrl, $finalPart) {
 		$baseUrlChopped = $this->baseUrlWithoutOCSAppendix();
 		$endCharacter = strlen($baseUrlChopped) + strlen($finalPart);
@@ -319,7 +329,6 @@ trait BasicStructure {
 	 * @param string $key2
 	 * @param string $key3
 	 * @param string $attribute
-	 * @param string $idText
 	 */
 	public function theXMLKey1Key2AttributeValueShouldBe($key1, $key2, $key3, $attribute) {
 		$value = $this->getXMLKey1Key2Key3AttributeValue($this->response, $key1, $key2, $key3, $attribute);
@@ -416,6 +425,10 @@ trait BasicStructure {
 		}
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $filename
+	 */
 	public static function removeFile($path, $filename) {
 		if (file_exists("$path" . "$filename")) {
 			unlink("$path" . "$filename");
@@ -433,6 +446,10 @@ trait BasicStructure {
 		file_put_contents($this->getUserHome($user) . "/files" . "$filename", "$text");
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $size
+	 */
 	public function createFileSpecificSize($name, $size) {
 		$file = fopen("work/" . "$name", 'w');
 		fseek($file, $size - 1 ,SEEK_CUR);
@@ -440,6 +457,10 @@ trait BasicStructure {
 		fclose($file);
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $text
+	 */
 	public function createFileWithText($name, $text) {
 		$file = fopen("work/" . "$name", 'w');
 		fwrite($file, $text);
@@ -501,6 +522,7 @@ trait BasicStructure {
 
 	/**
 	 * @Then the json responded should match with
+	 * @param PyStringNode $jsonExpected
 	 */
 	public function jsonRespondedShouldMatch(PyStringNode $jsonExpected) {
 		$jsonExpectedEncoded = json_encode($jsonExpected->getRaw());
@@ -510,6 +532,7 @@ trait BasicStructure {
 
 	/**
 	 * @Then the status.php with versions fixed responded should match with
+	 * @param PyStringNode $jsonExpected
 	 */
 	public function statusPhpRespondedShouldMatch(PyStringNode $jsonExpected) {
 		$jsonExpectedDecoded = json_decode($jsonExpected->getRaw(), true);
@@ -555,6 +578,7 @@ trait BasicStructure {
 
 	/**
 	 * @BeforeSuite
+	 * @param BeforeSuiteScope $scope
 	 */
 	public static function useBigFileIDs(BeforeSuiteScope $scope) {
 		$fullUrl = getenv('TEST_SERVER_URL') . "/v1.php/apps/testing/api/v1/increasefileid";
