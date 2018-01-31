@@ -18,6 +18,7 @@ So that those groups can access the files and folders
 		And I am on the login page
 		And I login with username "user3" and password "1234"
 
+	@LDAP
 	Scenario: share a folder with an internal group
 		When the folder "simple-folder" is shared with the group "grp1"
 		And the file "testimage.jpg" is shared with the group "grp1"
